@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="tr" class="scroll-smooth dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Şarj Kaça | Geleceğin Mobilitesi</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#09090b">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            dark: '#09090b',
+            card: '#121214'
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Space+Grotesk:wght@400;700&display=swap" rel="stylesheet">
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <style>
+    :root {
+      --electric-blue: #1E90FF;
+      --neon-green: #9FE870;
+      --smoky-gray: #1a1a1a;
+    }
+    body {
+      font-family: 'Inter', sans-serif;
+      /* Default to light mode background in CSS, Tailwind handles classes */
+      background-color: #f9fafb; 
+      color: #111827;
+      overflow-x: hidden;
+    }
+    /* Dark mode override */
+    html.dark body {
+      background-color: #09090b;
+      color: #ffffff;
+    }
+    
+    h1, h2, h3, h4 {
+      font-family: 'Space Grotesk', sans-serif;
+    }
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f3f4f6;
+    }
+    html.dark ::-webkit-scrollbar-track {
+      background: #18181b;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #d1d5db;
+      border-radius: 4px;
+    }
+    html.dark ::-webkit-scrollbar-thumb {
+      background: #27272a;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #1E90FF;
+    }
+    
+    .glass-panel {
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    html.dark .glass-panel {
+      background: rgba(24, 24, 27, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .neon-glow {
+      box-shadow: 0 0 20px rgba(30, 144, 255, 0.2);
+    }
+    .neon-glow-green {
+      box-shadow: 0 0 20px rgba(159, 232, 112, 0.2);
+    }
+    .gradient-text {
+      background: linear-gradient(to right, #1E90FF, #9FE870);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    @media print {
+      body { background-color: white; color: black; }
+      .no-print { display: none !important; }
+      .print-only { display: block !important; }
+      .glass-panel { background: white; border: 1px solid #ccc; color: black; box-shadow: none; }
+      * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+    }
+  </style>
+<script type="importmap">
+{
+  "imports": {
+    "rxjs": "https://aistudiocdn.com/rxjs@^7.8.2?conditions=es2015",
+    "rxjs/operators": "https://aistudiocdn.com/rxjs@^7.8.2/operators?conditions=es2015",
+    "rxjs/ajax": "https://aistudiocdn.com/rxjs@^7.8.2/ajax?conditions=es2015",
+    "rxjs/webSocket": "https://aistudiocdn.com/rxjs@^7.8.2/webSocket?conditions=es2015",
+    "rxjs/testing": "https://aistudiocdn.com/rxjs@^7.8.2/testing?conditions=es2015",
+    "rxjs/fetch": "https://aistudiocdn.com/rxjs@^7.8.2/fetch?conditions=es2015",
+    "@angular/forms": "https://next.esm.sh/@angular/forms@^20.3.12?external=rxjs",
+    "@angular/common": "https://next.esm.sh/@angular/common@^20.3.12?external=rxjs",
+    "@angular/compiler": "https://next.esm.sh/@angular/compiler@^20.3.12?external=rxjs",
+    "@angular/core": "https://next.esm.sh/@angular/core@^20.3.12?external=rxjs",
+    "@angular/platform-browser": "https://next.esm.sh/@angular/platform-browser@^20.3.12?external=rxjs"
+  }
+}
+</script>
+</head>
+<body>
+  <app-root></app-root>
+</body>
+</html>
