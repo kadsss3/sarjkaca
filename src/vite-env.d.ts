@@ -1,12 +1,7 @@
-// FIX: Resolved "Cannot redeclare block-scoped variable 'process'" error.
-// The declaration is wrapped in `declare global` and the file is treated as a module via `export {}`
-// to correctly augment the global scope and avoid conflicts with other type definitions.
-
 // Type definitions for the environment
 // Replaces missing vite/client types
 declare global {
-  // FIX: Changed `const` to `var` to avoid "Cannot redeclare block-scoped variable" errors.
-  // `var` allows for declaration merging with other global type definitions (e.g., from @types/node).
+  // FIX: Changed `const` or `let` to `var` for the `process` declaration. This avoids a "Cannot redeclare block-scoped variable" error by allowing the declaration to be merged with any existing global definitions.
   var process: {
     env: {
       [key: string]: string | undefined;

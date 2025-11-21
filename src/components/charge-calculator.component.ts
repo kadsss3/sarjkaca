@@ -107,18 +107,18 @@ import { DataService, Vehicle } from '../services/data.service';
               <div>
                 <div class="flex justify-between mb-2">
                   <label class="text-sm font-bold text-gray-700 dark:text-gray-300">Mevcut Şarj (%)</label>
-                  <span class="text-sm font-bold text-gray-900 dark:text-white">%{{ startSoc() }}</span>
+                  <span class="text-sm font-bold text-green-500 dark:text-[#9FE870]">%{{ startSoc() }}</span>
                 </div>
-                <input type="range" min="0" max="100" [ngModel]="startSoc()" (ngModelChange)="updateStartSoc($event)" class="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-gray-500">
+                <input type="range" min="0" max="100" [ngModel]="startSoc()" (ngModelChange)="updateStartSoc($event)" class="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-green-500 dark:accent-[#9FE870]">
               </div>
 
               <!-- Target SoC -->
               <div>
                 <div class="flex justify-between mb-2">
                   <label class="text-sm font-bold text-gray-700 dark:text-gray-300">Hedef Şarj (%)</label>
-                  <span class="text-sm font-bold text-green-500 dark:text-[#9FE870]">%{{ targetSoc() }}</span>
+                  <span class="text-sm font-bold text-red-500 dark:text-red-400">%{{ targetSoc() }}</span>
                 </div>
-                <input type="range" min="0" max="100" [ngModel]="targetSoc()" (ngModelChange)="updateTargetSoc($event)" class="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-green-500 dark:accent-[#9FE870]">
+                <input type="range" min="0" max="100" [ngModel]="targetSoc()" (ngModelChange)="updateTargetSoc($event)" class="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-red-500">
               </div>
 
             </div>
@@ -161,22 +161,32 @@ import { DataService, Vehicle } from '../services/data.service';
              <!-- Visual Battery -->
              <div class="bg-gray-100 dark:bg-black/40 p-6 rounded-3xl border border-gray-200 dark:border-white/5 flex justify-center items-center h-full min-h-[200px]">
                 <!-- Battery Body -->
-                <div class="relative w-32 h-48 border-4 border-gray-400 dark:border-gray-600 rounded-2xl p-1.5 flex flex-col justify-end">
+                <div class="relative w-32 h-48 border-4 border-gray-400 dark:border-gray-600 rounded-2xl p-1.5 flex flex-col justify-end bg-gray-200 dark:bg-black/50">
                    <!-- Battery Top Nipple -->
                    <div class="absolute -top-3 left-1/2 -translate-x-1/2 w-12 h-3 bg-gray-400 dark:bg-gray-600 rounded-t-md"></div>
                    
-                   <!-- Fill -->
-                   <div class="w-full bg-gradient-to-t from-[#1E90FF] to-[#60a5fa] rounded-lg relative overflow-hidden animated-fill"
-                        [style.height.%]="targetSoc()">
-                      
-                      <!-- Current Level Line -->
-                      <div class="absolute w-full border-t-2 border-white/50 border-dashed" 
-                           [style.bottom.%]="(startSoc() / targetSoc()) * 100"></div>
-                      
-                      <!-- Percentage Text -->
-                      <div class="absolute inset-0 flex items-center justify-center text-white font-bold shadow-black drop-shadow-md">
-                        %{{ targetSoc() }}
-                      </div>
+                   <!-- Container to clip corners -->
+                   <div class="w-full h-full rounded-lg overflow-hidden flex flex-col-reverse">
+                       <!-- Existing Charge (Green) -->
+                       <div class="w-full bg-gradient-to-t from-green-500 to-[#9FE870] animated-fill relative transition-all duration-500"
+                            [style.height.%]="startSoc()">
+                            @if (startSoc() > 15) {
+                               <div class="absolute inset-0 flex items-center justify-center text-black font-bold text-xl">
+                                 %{{ startSoc() }}
+                               </div>
+                            }
+                       </div>
+
+                       <!-- Added Charge (Red) -->
+                       <div class="w-full bg-gradient-to-t from-red-500 to-red-600 dark:from-red-600 dark:to-red-800 relative transition-all duration-500"
+                            [style.height.%]="targetSoc() - startSoc()">
+                            @if(targetSoc() - startSoc() > 15) {
+                              <div class="absolute inset-0 flex flex-col items-center justify-center text-white font-bold shadow-black drop-shadow-md text-center">
+                                <span class="text-xl leading-none">+{{ (batterySize() * (targetSoc() - startSoc()) / 100) | number:'1.0-0' }}</span>
+                                <span class="text-[10px] opacity-80">kWh</span>
+                              </div>
+                            }
+                       </div>
                    </div>
                 </div>
              </div>
@@ -262,6 +272,8 @@ export class ChargeCalculatorComponent implements OnInit {
     const initialEvId = this.dataService.selectedEvIdFromSimulator();
     if (this.evs().some(v => v.id === initialEvId)) {
       this.selectedVehicleId.set(initialEvId);
+    } else if (this.evs().length > 0) {
+      this.selectedVehicleId.set(this.evs()[0].id);
     }
   }
 
