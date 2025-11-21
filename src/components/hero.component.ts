@@ -1,4 +1,5 @@
 
+
 import { Component, output, signal, inject } from '@angular/core';
 import { TranslationService } from '../services/translation.service';
 
@@ -57,10 +58,7 @@ import { TranslationService } from '../services/translation.service';
            <div class="text-[10px] font-mono text-gray-500 tracking-widest uppercase hidden lg:block">{{ ts.t('hero.sound.ice') }}</div>
            <div class="flex items-center gap-2 p-1 rounded-full bg-white/60 dark:bg-white/5 border border-gray-200 dark:border-white/10 backdrop-blur-md shadow-2xl">
               <button (click)="playSound('ice')" 
-                      [class.bg-red-100]="soundMode() === 'ice'" 
-                      [class.dark:bg-red-500_20]="soundMode() === 'ice'"
-                      [class.border-red-400]="soundMode() === 'ice'"
-                      [class.dark:border-red-500_50]="soundMode() === 'ice'"
+                      [class.sound-ice-active]="soundMode() === 'ice'"
                       class="w-10 h-10 rounded-full flex items-center justify-center border border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/10 transition-all">
                 @if(soundMode() === 'ice') {
                    <div class="flex gap-0.5 items-end h-3">
@@ -76,10 +74,7 @@ import { TranslationService } from '../services/translation.service';
               <div class="w-px h-4 bg-gray-300 dark:bg-white/10"></div>
               
               <button (click)="playSound('ev')" 
-                      [class.bg-blue-100]="soundMode() === 'ev'"
-                      [class.dark:bg-blue-500_20]="soundMode() === 'ev'"
-                      [class.border-blue-400]="soundMode() === 'ev'"
-                      [class.dark:border-blue-500_50]="soundMode() === 'ev'"
+                      [class.sound-ev-active]="soundMode() === 'ev'"
                       class="w-10 h-10 rounded-full flex items-center justify-center border border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/10 transition-all">
                 @if(soundMode() === 'ev') {
                    <div class="w-full h-full flex items-center justify-center">
@@ -113,10 +108,25 @@ import { TranslationService } from '../services/translation.service';
       animation: fade-in-up 0.8s ease-out forwards;
       opacity: 0; /* Start hidden */
     }
-    .bg-red-500_20 { background-color: rgba(239, 68, 68, 0.2); color: white; }
-    .bg-blue-500_20 { background-color: rgba(30, 144, 255, 0.2); color: white; }
-    .border-red-500_50 { border-color: rgba(239, 68, 68, 0.5); }
-    .border-blue-500_50 { border-color: rgba(30, 144, 255, 0.5); }
+    /* FIX: Replaced invalid dark mode bindings with CSS classes for proper styling in light and dark themes. */
+    .sound-ice-active {
+      background-color: #fee2e2; /* from bg-red-100 */
+      border-color: #f87171; /* from border-red-400 */
+    }
+    :host-context(.dark) .sound-ice-active {
+      background-color: rgba(239, 68, 68, 0.2);
+      border-color: rgba(239, 68, 68, 0.5);
+      color: white;
+    }
+    .sound-ev-active {
+      background-color: #dbeafe; /* from bg-blue-100 */
+      border-color: #60a5fa; /* from border-blue-400 */
+    }
+    :host-context(.dark) .sound-ev-active {
+      background-color: rgba(30, 144, 255, 0.2);
+      border-color: rgba(30, 144, 255, 0.5);
+      color: white;
+    }
   `]
 })
 export class HeroComponent {

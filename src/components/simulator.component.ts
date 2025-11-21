@@ -1,4 +1,7 @@
 
+
+
+
 import { Component, signal, computed, inject, effect, ElementRef, viewChild, ViewEncapsulation, OnInit, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -79,10 +82,17 @@ declare const d3: any;
                 <div class="relative aspect-video w-full overflow-hidden rounded-xl bg-gray-100 dark:bg-black">
                   <img [src]="ev.image" class="w-full h-full object-cover opacity-90 dark:opacity-80 group-hover:opacity-100 transition-opacity" alt="EV Car">
                   
-                  <!-- VISUAL RANGE MAP OVERLAY -->
-                  <div class="absolute bottom-2 right-2 bg-white/90 dark:bg-black/70 backdrop-blur-md border border-gray-200 dark:border-white/10 rounded-lg p-1.5 flex gap-2 items-center shadow-sm" title="WLTP Range">
-                     <span class="text-xs text-gray-900 dark:text-white font-bold">{{ ev.rangeWltp }} km</span>
-                     <svg viewBox="0 0 24 24" class="w-4 h-4 text-[#1E90FF]" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                  <div class="absolute bottom-2 right-2 flex items-center gap-2">
+                      <!-- Battery Capacity Badge -->
+                      <div class="bg-white/90 dark:bg-black/70 backdrop-blur-md border border-gray-200 dark:border-white/10 rounded-lg p-1.5 flex gap-2 items-center shadow-sm" title="Batarya Kapasitesi">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-green-500 dark:text-[#9FE870]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                          <span class="text-xs text-gray-900 dark:text-white font-bold">{{ ev.batteryCapacity }} kWh</span>
+                      </div>
+                      <!-- Range Badge -->
+                      <div class="bg-white/90 dark:bg-black/70 backdrop-blur-md border border-gray-200 dark:border-white/10 rounded-lg p-1.5 flex gap-2 items-center shadow-sm" title="WLTP Menzil">
+                         <span class="text-xs text-gray-900 dark:text-white font-bold">{{ ev.rangeWltp }} km</span>
+                         <svg viewBox="0 0 24 24" class="w-4 h-4 text-[#1E90FF]" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                      </div>
                   </div>
                 </div>
 
@@ -216,9 +226,11 @@ declare const d3: any;
                  </div>
                  <div class="flex items-end gap-2 mb-2">
                    @if (isTripMode()) {
-                      <input type="number" [ngModel]="tripKm()" (ngModelChange)="tripKm.set($event)" class="w-full bg-transparent text-2xl font-bold text-gray-900 dark:text-white outline-none border-b border-gray-300 dark:border-white/20 focus:border-gray-500 dark:focus:border-white/50 pb-1">
+                      <!-- FIX: Ensure value is a number for the signal -->
+                      <input type="number" [ngModel]="tripKm()" (ngModelChange)="tripKm.set(+$event)" class="w-full bg-transparent text-2xl font-bold text-gray-900 dark:text-white outline-none border-b border-gray-300 dark:border-white/20 focus:border-gray-500 dark:focus:border-white/50 pb-1">
                    } @else {
-                      <input type="number" [ngModel]="annualKm()" (ngModelChange)="annualKm.set($event)" class="w-full bg-transparent text-2xl font-bold text-gray-900 dark:text-white outline-none border-b border-gray-300 dark:border-white/20 focus:border-gray-500 dark:focus:border-white/50 pb-1">
+                      <!-- FIX: Ensure value is a number for the signal -->
+                      <input type="number" [ngModel]="annualKm()" (ngModelChange)="annualKm.set(+$event)" class="w-full bg-transparent text-2xl font-bold text-gray-900 dark:text-white outline-none border-b border-gray-300 dark:border-white/20 focus:border-gray-500 dark:focus:border-white/50 pb-1">
                    }
                    <span class="text-xs text-gray-500 mb-2">km</span>
                  </div>
@@ -251,9 +263,11 @@ declare const d3: any;
 
                  <div class="flex items-end gap-2 mb-2">
                     @if (activeFuelType() === 'Diesel') {
-                        <input type="number" [ngModel]="dieselPrice()" (ngModelChange)="dieselPrice.set($event)" step="0.1" class="w-full bg-transparent text-2xl font-bold text-gray-600 dark:text-gray-300 outline-none border-b border-gray-300 dark:border-white/20 focus:border-gray-500 pb-1">
+                        <!-- FIX: Ensure value is a number for the signal -->
+                        <input type="number" [ngModel]="dieselPrice()" (ngModelChange)="dieselPrice.set(+$event)" step="0.1" class="w-full bg-transparent text-2xl font-bold text-gray-600 dark:text-gray-300 outline-none border-b border-gray-300 dark:border-white/20 focus:border-gray-500 pb-1">
                     } @else {
-                        <input type="number" [ngModel]="gasolinePrice()" (ngModelChange)="gasolinePrice.set($event)" step="0.1" class="w-full bg-transparent text-2xl font-bold text-yellow-600 dark:text-yellow-400 outline-none border-b border-gray-300 dark:border-white/20 focus:border-yellow-500 pb-1">
+                        <!-- FIX: Ensure value is a number for the signal -->
+                        <input type="number" [ngModel]="gasolinePrice()" (ngModelChange)="gasolinePrice.set(+$event)" step="0.1" class="w-full bg-transparent text-2xl font-bold text-yellow-600 dark:text-yellow-400 outline-none border-b border-gray-300 dark:border-white/20 focus:border-yellow-500 pb-1">
                     }
                     <span class="text-xs text-gray-500 mb-2">TL/Lt</span>
                  </div>
@@ -266,7 +280,8 @@ declare const d3: any;
                       <span class="text-sm font-bold text-gray-600 dark:text-gray-300">{{ ts.t('sim.price.elec') }}</span>
                    </div>
                    <div class="flex items-end gap-2 mb-2">
-                      <input type="number" [ngModel]="elecPrice()" (ngModelChange)="elecPrice.set($event)" step="0.1" class="w-full bg-transparent text-2xl font-bold text-green-600 dark:text-[#9FE870] outline-none border-b border-gray-300 dark:border-white/20 focus:border-green-500 dark:focus:border-[#9FE870] pb-1">
+                      <!-- FIX: Ensure value is a number for the signal -->
+                      <input type="number" [ngModel]="elecPrice()" (ngModelChange)="elecPrice.set(+$event)" step="0.1" class="w-full bg-transparent text-2xl font-bold text-green-600 dark:text-[#9FE870] outline-none border-b border-gray-300 dark:border-white/20 focus:border-green-500 dark:focus:border-[#9FE870] pb-1">
                       <span class="text-xs text-gray-500 mb-2">TL/kWh</span>
                    </div>
                 </div>
@@ -279,7 +294,8 @@ declare const d3: any;
                       <span class="text-sm font-bold text-gray-600 dark:text-gray-300">{{ ts.t('sim.price.public') }}</span>
                    </div>
                    <div class="flex items-end gap-2 mb-2">
-                      <input type="number" [ngModel]="publicPrice()" (ngModelChange)="publicPrice.set($event)" step="0.1" class="w-full bg-transparent text-2xl font-bold text-[#1E90FF] outline-none border-b border-gray-300 dark:border-white/20 focus:border-[#1E90FF] pb-1">
+                      <!-- FIX: Ensure value is a number for the signal -->
+                      <input type="number" [ngModel]="publicPrice()" (ngModelChange)="publicPrice.set(+$event)" step="0.1" class="w-full bg-transparent text-2xl font-bold text-[#1E90FF] outline-none border-b border-gray-300 dark:border-white/20 focus:border-[#1E90FF] pb-1">
                       <span class="text-xs text-gray-500 mb-2">TL/kWh</span>
                    </div>
                 </div>
@@ -307,8 +323,9 @@ declare const d3: any;
                     </div>
                     
                     <!-- Invisible Input (The Interaction Layer) -->
+                    <!-- FIX: Ensure value is a number for the signal -->
                     <input type="range" min="0" max="100" step="5" 
-                           [ngModel]="hybridMixPercent()" (ngModelChange)="hybridMixPercent.set($event)" 
+                           [ngModel]="hybridMixPercent()" (ngModelChange)="hybridMixPercent.set(+$event)" 
                            class="absolute w-full h-full opacity-0 cursor-pointer z-20 m-0 p-0">
                     
                     <!-- Visible Handle (The Visual Thumb) -->
@@ -361,16 +378,20 @@ declare const d3: any;
                    <div class="bg-gray-100 dark:bg-black/40 p-3 rounded-lg border border-gray-200 dark:border-white/5">
                       <div class="flex justify-between items-center mb-2">
                          <span class="text-xs text-yellow-600 dark:text-yellow-500">Yakıt Yıllık Zam %</span>
-                         <input type="number" [ngModel]="fuelInflation()" (ngModelChange)="fuelInflation.set($event)" class="w-16 bg-white dark:bg-black border border-gray-300 dark:border-white/10 rounded text-right text-gray-900 dark:text-white text-xs py-1">
+                         <!-- FIX: Ensure value is a number for the signal -->
+                         <input type="number" [ngModel]="fuelInflation()" (ngModelChange)="fuelInflation.set(+$event)" class="w-16 bg-white dark:bg-black border border-gray-300 dark:border-white/10 rounded text-right text-gray-900 dark:text-white text-xs py-1">
                       </div>
-                      <input type="range" min="0" max="100" step="5" [ngModel]="fuelInflation()" (ngModelChange)="fuelInflation.set($event)" class="w-full h-1 bg-gray-300 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-yellow-500">
+                      <!-- FIX: Ensure value is a number for the signal -->
+                      <input type="range" min="0" max="100" step="5" [ngModel]="fuelInflation()" (ngModelChange)="fuelInflation.set(+$event)" class="w-full h-1 bg-gray-300 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-yellow-500">
                    </div>
                    <div class="bg-gray-100 dark:bg-black/40 p-3 rounded-lg border border-gray-200 dark:border-white/5">
                       <div class="flex justify-between items-center mb-2">
                          <span class="text-xs text-green-600 dark:text-[#9FE870]">Elektrik Yıllık Zam %</span>
-                         <input type="number" [ngModel]="elecInflation()" (ngModelChange)="elecInflation.set($event)" class="w-16 bg-white dark:bg-black border border-gray-300 dark:border-white/10 rounded text-right text-gray-900 dark:text-white text-xs py-1">
+                         <!-- FIX: Ensure value is a number for the signal -->
+                         <input type="number" [ngModel]="elecInflation()" (ngModelChange)="elecInflation.set(+$event)" class="w-16 bg-white dark:bg-black border border-gray-300 dark:border-white/10 rounded text-right text-gray-900 dark:text-white text-xs py-1">
                       </div>
-                      <input type="range" min="0" max="100" step="5" [ngModel]="elecInflation()" (ngModelChange)="elecInflation.set($event)" class="w-full h-1 bg-gray-300 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-green-500 dark:accent-[#9FE870]">
+                      <!-- FIX: Ensure value is a number for the signal -->
+                      <input type="range" min="0" max="100" step="5" [ngModel]="elecInflation()" (ngModelChange)="elecInflation.set(+$event)" class="w-full h-1 bg-gray-300 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-green-500 dark:accent-[#9FE870]">
                    </div>
                 </div>
            }
@@ -749,6 +770,10 @@ export class SimulatorComponent implements OnInit {
         }, 50);
       }
     });
+
+    effect(() => {
+      this.dataService.selectedEvIdFromSimulator.set(this.selectedEvId());
+    });
   }
 
   ngOnInit() {
@@ -918,7 +943,7 @@ export class SimulatorComponent implements OnInit {
 
     svg.append('g')
       .attr('transform', `translate(0,${height})`)
-      .call(d3Lib.axisBottom(x).ticks(5).tickFormat(d3Lib.format('d')))
+      .call(d3Lib.axisBottom(x).ticks(5).tickFormat(d3.format('d')))
       .attr('color', axisColor)
       .style('font-size', '12px');
 
@@ -978,6 +1003,24 @@ export class SimulatorComponent implements OnInit {
 
     addDots(evLineData, '#1E90FF', 'ev');
     addDots(iceLineData, axisColor, 'ice');
+
+    const addLabels = (dataset: any[], id: string, color: string) => {
+      svg.selectAll(`.label-${id}`)
+        .data(dataset.filter((d: any) => d.x > 0)) // Don't label the 0,0 point
+        .enter()
+        .append('text')
+        .attr('class', `label-${id}`)
+        .attr('x', (d: any) => x(d.x))
+        .attr('y', (d: any) => y(d.y) - 10) // Position above the dot
+        .attr('text-anchor', 'middle')
+        .style('font-size', '11px')
+        .style('font-weight', 'bold')
+        .attr('fill', color)
+        .text((d: any) => (d.y / 1000).toFixed(0) + 'k ₺');
+    };
+
+    addLabels(evLineData, 'ev', '#1E90FF');
+    addLabels(iceLineData, 'ice', axisColor);
 
     const legend = svg.append('g').attr('transform', `translate(20, 0)`);
     legend.append('circle').attr('cx',0).attr('cy',0).attr('r', 5).style('fill', '#1E90FF');

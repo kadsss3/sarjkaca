@@ -1,4 +1,5 @@
 
+
 import { Component, ElementRef, viewChild, signal, inject, PLATFORM_ID, effect } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { HeroComponent } from './components/hero.component';
@@ -100,12 +101,7 @@ import { TranslationService } from './services/translation.service';
   `]
 })
 export class AppComponent {
-  simulatorDiv = viewChild<ElementRef>('simulator');
-  chargeDiv = viewChild<ElementRef>('charge');
-  impactDiv = viewChild<ElementRef>('impact');
-  testimonialsDiv = viewChild<ElementRef>('testimonials');
-  
-  isDark = signal(true);
+  isDark = signal(false);
   platformId = inject(PLATFORM_ID);
   ts = inject(TranslationService);
 
@@ -127,23 +123,8 @@ export class AppComponent {
     this.isDark.update(v => !v);
   }
 
-  scrollTo(target: any) {
-    let el: HTMLElement | undefined;
-    
-    if (target instanceof HTMLElement) {
-      el = target;
-    } else if (target && typeof target === 'object' && 'nativeElement' in target) {
-       el = target.nativeElement; 
-    } else if (target === 'simulator') {
-       el = this.simulatorDiv()?.nativeElement;
-    } else if (target === 'charge') {
-       el = this.chargeDiv()?.nativeElement;
-    } else if (target === 'impact') {
-       el = this.impactDiv()?.nativeElement;
-    } else if (target === 'testimonials') {
-       el = this.testimonialsDiv()?.nativeElement;
-    }
-
-    el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  // REFACTOR: Simplified scroll logic to directly use the element passed from the template.
+  scrollTo(element: HTMLElement) {
+    element?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 }

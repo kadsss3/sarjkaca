@@ -1,5 +1,6 @@
 
-import { Injectable } from '@angular/core';
+
+import { Injectable, signal } from '@angular/core';
 
 export interface Vehicle {
   id: string;
@@ -83,6 +84,7 @@ export interface SimulationResult {
   providedIn: 'root'
 })
 export class DataService {
+  selectedEvIdFromSimulator = signal<string>('ev-1');
 
   // Curated Data (Turkish Market Approx. Prices 2025)
   private vehicles: Vehicle[] = [

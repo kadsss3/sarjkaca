@@ -1,7 +1,7 @@
-
-import { Component, signal, computed } from '@angular/core';
+import { Component, signal, computed, inject, OnInit, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { DataService, Vehicle } from '../services/data.service';
 
 @Component({
   selector: 'app-charge-calculator',
@@ -35,19 +35,29 @@ import { FormsModule } from '@angular/forms';
           <!-- Controls Column -->
           <div class="lg:col-span-7 bg-white dark:bg-[#121214] p-8 rounded-3xl border border-gray-200 dark:border-white/10 shadow-xl dark:shadow-none">
             
+            <!-- Vehicle Selector -->
+            <div class="mb-8">
+              <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Araç Seçimi (Otomatik Doldur)</label>
+              <select [ngModel]="selectedVehicleId()" (ngModelChange)="onVehicleSelect($event)" class="w-full bg-gray-50 dark:bg-black/30 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-gray-900 dark:text-white font-bold focus:border-[#1E90FF] outline-none transition-colors cursor-pointer">
+                @for(ev of evs(); track ev.id) {
+                  <option [value]="ev.id">{{ ev.brand }} {{ ev.name }}</option>
+                }
+              </select>
+            </div>
+            
             <!-- Battery Capacity & Consumption -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
               <div>
                 <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Batarya Kapasitesi</label>
                 <div class="relative">
-                  <input type="number" [ngModel]="batterySize()" (ngModelChange)="batterySize.set($event)" class="w-full bg-gray-50 dark:bg-black/30 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-gray-900 dark:text-white font-bold focus:border-[#1E90FF] outline-none transition-colors">
+                  <input type="number" [ngModel]="batterySize()" (ngModelChange)="setBatterySize($event)" class="w-full bg-gray-50 dark:bg-black/30 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-gray-900 dark:text-white font-bold focus:border-[#1E90FF] outline-none transition-colors">
                   <span class="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-gray-500">kWh</span>
                 </div>
               </div>
               <div>
                 <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Ortalama Tüketim</label>
                 <div class="relative">
-                  <input type="number" [ngModel]="consumption()" (ngModelChange)="consumption.set($event)" class="w-full bg-gray-50 dark:bg-black/30 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-gray-900 dark:text-white font-bold focus:border-[#1E90FF] outline-none transition-colors">
+                  <input type="number" [ngModel]="consumption()" (ngModelChange)="setConsumption($event)" class="w-full bg-gray-50 dark:bg-black/30 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-gray-900 dark:text-white font-bold focus:border-[#1E90FF] outline-none transition-colors">
                   <span class="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-gray-500">kWh/100km</span>
                 </div>
               </div>
@@ -56,32 +66,38 @@ import { FormsModule } from '@angular/forms';
             <!-- Charging Power Presets -->
             <div class="mb-8">
               <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Şarj İstasyonu Gücü</label>
-              <div class="grid grid-cols-3 sm:grid-cols-4 gap-3 mb-4">
-                <button (click)="chargingPower.set(3.7)" [class.ring-2]="chargingPower() === 3.7" class="py-2 rounded-lg bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 hover:bg-gray-200 dark:hover:bg-white/10 transition-all ring-[#1E90FF]">
+              <div class="grid grid-cols-3 sm:grid-cols-5 gap-3 mb-4">
+                <button (click)="setChargingPower(3.7); showCustomPowerInput.set(false)" [class.ring-2]="chargingPower() === 3.7 && !showCustomPowerInput()" class="py-2 rounded-lg bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 hover:bg-gray-200 dark:hover:bg-white/10 transition-all ring-[#1E90FF]">
                   <div class="text-sm font-bold text-gray-900 dark:text-white">3.7 kW</div>
                   <div class="text-[10px] text-gray-500">Priz</div>
                 </button>
-                <button (click)="chargingPower.set(11)" [class.ring-2]="chargingPower() === 11" class="py-2 rounded-lg bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 hover:bg-gray-200 dark:hover:bg-white/10 transition-all ring-[#1E90FF]">
+                <button (click)="setChargingPower(11); showCustomPowerInput.set(false)" [class.ring-2]="chargingPower() === 11 && !showCustomPowerInput()" class="py-2 rounded-lg bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 hover:bg-gray-200 dark:hover:bg-white/10 transition-all ring-[#1E90FF]">
                   <div class="text-sm font-bold text-gray-900 dark:text-white">11 kW</div>
                   <div class="text-[10px] text-gray-500">AC Wallbox</div>
                 </button>
-                <button (click)="chargingPower.set(60)" [class.ring-2]="chargingPower() === 60" class="py-2 rounded-lg bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 hover:bg-gray-200 dark:hover:bg-white/10 transition-all ring-[#1E90FF]">
+                <button (click)="setChargingPower(60); showCustomPowerInput.set(false)" [class.ring-2]="chargingPower() === 60 && !showCustomPowerInput()" class="py-2 rounded-lg bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 hover:bg-gray-200 dark:hover:bg-white/10 transition-all ring-[#1E90FF]">
                   <div class="text-sm font-bold text-gray-900 dark:text-white">60 kW</div>
                   <div class="text-[10px] text-gray-500">DC Hızlı</div>
                 </button>
-                <button (click)="chargingPower.set(180)" [class.ring-2]="chargingPower() === 180" class="py-2 rounded-lg bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 hover:bg-gray-200 dark:hover:bg-white/10 transition-all ring-[#1E90FF]">
+                <button (click)="setChargingPower(180); showCustomPowerInput.set(false)" [class.ring-2]="chargingPower() === 180 && !showCustomPowerInput()" class="py-2 rounded-lg bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 hover:bg-gray-200 dark:hover:bg-white/10 transition-all ring-[#1E90FF]">
                   <div class="text-sm font-bold text-gray-900 dark:text-white">180 kW</div>
                   <div class="text-[10px] text-gray-500">HPC Ultra</div>
                 </button>
+                 <button (click)="showCustomPowerInput.set(true)" [class.ring-2]="showCustomPowerInput()" class="py-2 rounded-lg bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 hover:bg-gray-200 dark:hover:bg-white/10 transition-all ring-[#1E90FF]">
+                  <div class="text-sm font-bold text-gray-900 dark:text-white">Özel</div>
+                  <div class="text-[10px] text-gray-500">Değer</div>
+                </button>
               </div>
               
-              <div class="relative">
-                <input type="range" min="2" max="350" step="1" [ngModel]="chargingPower()" (ngModelChange)="chargingPower.set($event)" class="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-[#1E90FF]">
-                <div class="flex justify-between mt-2 text-xs text-gray-500">
-                   <span>Özel Değer:</span>
-                   <span class="font-bold text-[#1E90FF]">{{ chargingPower() }} kW</span>
+              @if(showCustomPowerInput()) {
+                <div class="relative animate-fade-in">
+                  <input type="range" min="2" max="350" step="1" [ngModel]="chargingPower()" (ngModelChange)="setChargingPower($event)" class="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-[#1E90FF]">
+                  <div class="flex justify-between mt-2 text-xs text-gray-500">
+                     <span>Özel Değer:</span>
+                     <span class="font-bold text-[#1E90FF]">{{ chargingPower() }} kW</span>
+                  </div>
                 </div>
-              </div>
+              }
             </div>
 
             <!-- Percentage Sliders -->
@@ -150,7 +166,7 @@ import { FormsModule } from '@angular/forms';
                    <div class="absolute -top-3 left-1/2 -translate-x-1/2 w-12 h-3 bg-gray-400 dark:bg-gray-600 rounded-t-md"></div>
                    
                    <!-- Fill -->
-                   <div class="w-full bg-gradient-to-t from-[#1E90FF] to-[#60a5fa] rounded-lg relative transition-all duration-500"
+                   <div class="w-full bg-gradient-to-t from-[#1E90FF] to-[#60a5fa] rounded-lg relative overflow-hidden animated-fill"
                         [style.height.%]="targetSoc()">
                       
                       <!-- Current Level Line -->
@@ -170,9 +186,54 @@ import { FormsModule } from '@angular/forms';
 
       </div>
     </section>
-  `
+  `,
+  styles: [`
+    .animate-fade-in {
+      animation: fadeIn 0.5s ease-out forwards;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animated-fill {
+      transition: height 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .animated-fill::before,
+    .animated-fill::after {
+      content: '';
+      position: absolute;
+      width: 250%;
+      height: 250%;
+      top: -170%;
+      left: 50%;
+      border-radius: 45%;
+      background: rgba(255, 255, 255, 0.15);
+      animation: wave 10s infinite linear;
+    }
+
+    .animated-fill::after {
+      border-radius: 40%;
+      background: rgba(255, 255, 255, 0.2);
+      animation: wave 15s infinite linear;
+      animation-direction: reverse;
+    }
+
+    @keyframes wave {
+      from {
+        transform: translateX(-50%) rotate(0deg);
+      }
+      to {
+        transform: translateX(-50%) rotate(360deg);
+      }
+    }
+  `]
 })
-export class ChargeCalculatorComponent {
+export class ChargeCalculatorComponent implements OnInit {
+  private dataService = inject(DataService);
+
+  evs = signal<Vehicle[]>([]);
+  selectedVehicleId = signal<string>('');
   
   batterySize = signal(75); // kWh
   consumption = signal(16.5); // kWh/100km
@@ -180,6 +241,29 @@ export class ChargeCalculatorComponent {
   
   startSoc = signal(20);
   targetSoc = signal(80);
+
+  showCustomPowerInput = signal(false);
+
+  constructor() {
+    effect(() => {
+      const vehicleId = this.selectedVehicleId();
+      if (!vehicleId) return;
+
+      const selectedVehicle = this.evs().find(v => v.id === vehicleId);
+      if (selectedVehicle) {
+        this.batterySize.set(selectedVehicle.batteryCapacity ?? 75);
+        this.consumption.set(selectedVehicle.energyConsumption ?? 16.5);
+      }
+    });
+  }
+
+  ngOnInit() {
+    this.evs.set(this.dataService.getVehicles().filter(v => v.type === 'EV'));
+    const initialEvId = this.dataService.selectedEvIdFromSimulator();
+    if (this.evs().some(v => v.id === initialEvId)) {
+      this.selectedVehicleId.set(initialEvId);
+    }
+  }
 
   result = computed(() => {
     const cap = this.batterySize();
@@ -210,18 +294,36 @@ export class ChargeCalculatorComponent {
       rangeGained
     };
   });
+  
+  onVehicleSelect(vehicleId: string) {
+    this.selectedVehicleId.set(vehicleId);
+  }
 
-  updateStartSoc(val: number) {
-    this.startSoc.set(val);
-    if (this.targetSoc() <= val) {
-       this.targetSoc.set(Math.min(100, val + 10));
+  setBatterySize(value: string | number) {
+    this.batterySize.set(Number(value));
+  }
+
+  setConsumption(value: string | number) {
+    this.consumption.set(Number(value));
+  }
+
+  setChargingPower(value: string | number) {
+    this.chargingPower.set(Number(value));
+  }
+
+  updateStartSoc(val: string | number) {
+    const numericVal = Number(val);
+    this.startSoc.set(numericVal);
+    if (this.targetSoc() <= numericVal) {
+       this.targetSoc.set(Math.min(100, numericVal + 10));
     }
   }
 
-  updateTargetSoc(val: number) {
-    this.targetSoc.set(val);
-    if (this.startSoc() >= val) {
-       this.startSoc.set(Math.max(0, val - 10));
+  updateTargetSoc(val: string | number) {
+    const numericVal = Number(val);
+    this.targetSoc.set(numericVal);
+    if (this.startSoc() >= numericVal) {
+       this.startSoc.set(Math.max(0, numericVal - 10));
     }
   }
 }
