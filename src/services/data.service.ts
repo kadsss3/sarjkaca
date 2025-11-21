@@ -61,6 +61,8 @@ export interface SimulationResult {
   tcoIce5: number;
   co2SavedTons: number;
   // New Metrics
+  maintenanceEvAnnual: number;
+  maintenanceIceAnnual: number;
   tripCostEv: number;
   tripCostIce: number;
   effectiveRange: number;
@@ -69,6 +71,7 @@ export interface SimulationResult {
   stopsEv: number;
   stopsIce: number;
   // Feature Additions
+  batteryHealth5Year: number; // percentage (0-100)
   purchasingPower: {
     coffees: number; // Approx 120 TL
     phones: number; // Approx 65,000 TL
@@ -238,10 +241,9 @@ export class DataService {
     const evCostPer100 = adjustedEvConsumption * weightedElecPrice;
     const iceCostPer100 = (ice.fuelEconomy || 7) * inputs.fuelPrice;
 
-    // --- Maintenance Logic (Removed) ---
-    // Maintenance is removed from calculation to focus on fuel/energy savings
-    const iceMaintenancePerKm = 0; 
-    const evMaintenancePerKm = 0;
+    // --- Maintenance Logic (TL/km) ---
+    const iceMaintenancePerKm = 2.5; 
+    const evMaintenancePerKm = 1.0;
 
     // --- Annual Mode Calculations (Year 1 Base) ---
     const evAnnualFuel = (inputs.annualKm / 100) * evCostPer100;
@@ -278,7 +280,7 @@ export class DataService {
         const yearEvFuel = (inputs.annualKm / 100) * (adjustedEvConsumption * yearWeightedElec);
         const yearIceFuel = (inputs.annualKm / 100) * ((ice.fuelEconomy || 7) * currentFuelPrice);
         
-        // Maintenance inflation (Set to 0 effectively)
+        // Maintenance inflation
         const yearMaintFactor = Math.pow(1.15, year - 1); 
         const yearEvMaint = evAnnualMaint * yearMaintFactor;
         const yearIceMaint = iceAnnualMaint * yearMaintFactor;
@@ -313,6 +315,16 @@ export class DataService {
     const stopsEv = Math.max(0, Math.ceil((tripKm / effectiveRange) - 1));
     const stopsIce = Math.max(0, Math.ceil((tripKm / ((ice.tankCapacity || 50) / (ice.fuelEconomy || 7) * 100)) - 1));
 
+    // --- Battery Health ---
+    const years = 5;
+    const totalKm = inputs.annualKm * years;
+    const calendarDegradation = 1.5 * years; // 7.5%
+    const cycleDegradation = (totalKm / (ev.rangeWltp || 400)) * 0.015; 
+    const dcKm = totalKm * publicShare;
+    const fastChargeDegradation = (dcKm / 1000) * 0.15; 
+    const totalDegradation = calendarDegradation + cycleDegradation + fastChargeDegradation;
+    const batteryHealth5Year = Math.max(70, 100 - totalDegradation);
+
     // --- Savings Calculation (OpEx Only) ---
     const totalSavings5Year = cumIceCost - cumEvCost;
     const monthlySavings = (iceTotalAnnualYear1 - evTotalAnnualYear1) / 12;
@@ -333,12 +345,15 @@ export class DataService {
       tcoEv1, tcoEv3, tcoEv5,
       tcoIce1, tcoIce3, tcoIce5,
       co2SavedTons: Math.max(0, co2SavedTons),
+      maintenanceEvAnnual: evAnnualMaint,
+      maintenanceIceAnnual: iceAnnualMaint,
       tripCostEv,
       tripCostIce,
       effectiveRange,
       solarPanelCount,
       stopsEv,
       stopsIce,
+      batteryHealth5Year,
       purchasingPower
     };
   }

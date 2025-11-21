@@ -48,7 +48,7 @@ import { Component } from '@angular/core';
              </div>
 
              <p class="text-gray-600 dark:text-gray-300 text-sm italic leading-relaxed">
-               "Simülatördeki yakıt maliyeti grafiğini görünce şaka sandım ama istasyona gidince anladım. Sadece şarj edip devam ediyoruz. İnanılmaz."
+               "Simülatördeki bakım maliyeti grafiğini görünce şaka sandım ama servise gidince anladım. Sadece silecek suyu koyup çıktık. İnanılmaz."
              </p>
           </div>
 

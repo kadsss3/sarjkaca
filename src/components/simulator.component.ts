@@ -522,7 +522,7 @@ declare const d3: any;
                       <div class="flex justify-between items-center mb-6">
                         <div>
                            <h4 class="text-lg font-semibold text-gray-900 dark:text-white">{{ ts.t('res.chart.title') }}</h4>
-                           <p class="text-xs text-gray-500">Sadece Yakıt/Enerji (Araba Fiyatı Yoktur)</p>
+                           <p class="text-xs text-gray-500">Sadece Yakıt/Enerji ve Bakım (Araba Fiyatı Yoktur)</p>
                         </div>
                       </div>
                       <div #chartContainer class="w-full h-[350px]"></div>
@@ -719,8 +719,9 @@ export class SimulatorComponent implements OnInit {
   result = signal<SimulationResult>({
     evAnnualCost: 0, iceAnnualCost: 0, savings1Year: 0, savings3Year: 0, savings5Year: 0,
     monthlySavings: 0, tcoEv1: 0, tcoEv3: 0, tcoEv5: 0, tcoIce1: 0, tcoIce3: 0, tcoIce5: 0, co2SavedTons: 0,
-    tripCostEv: 0, tripCostIce: 0, effectiveRange: 0,
+    maintenanceEvAnnual: 0, maintenanceIceAnnual: 0, tripCostEv: 0, tripCostIce: 0, effectiveRange: 0,
     stopsEv: 0, stopsIce: 0,
+    batteryHealth5Year: 100,
     purchasingPower: { coffees: 0, phones: 0, vacations: 0 }
   });
 
